@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Estimation Tool - The Evolve Group</title>
+  <style>
+    :root {
+      --primary: #0f4c81;
+      --accent: #2563eb;
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --border: #94a3b8; /* Enhanced contrast for borders */
+      --text: #020617;   /* Deep high-contrast text color */
+      --text-muted: #334155; /* Higher contrast muted text */
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background-color: var(--bg);
+      background-image: 
+        linear-gradient(to right, rgba(15, 76, 129, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 76, 129, 0.05) 1px, transparent 1px),
+        linear-gradient(to right, rgba(15, 76, 129, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 76, 129, 0.025) 1px, transparent 1px);
+      background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+      background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      font-size: 14px;
+    }
+
+    input[type="text"], select {
+      text-transform: uppercase;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .sticky-header-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 12px 24px;
+    }
+
+    .brand-header {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand-text-logo {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .brand-tagline {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+
+    .header-inputs {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .header-inputs input, .header-inputs select {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      background-color: #fff;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    #estimateDate, #projectName {
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    .upper-right-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .total-print-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary);
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .summary-badge {
+      color: #ffffff;
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .actions-inline {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      border-left: 1px solid var(--border);
+      padding-left: 12px;
+    }
+
+    .btn-flat {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text);
+      transition: all 0.2s ease;
+      padding: 0;
+    }
+
+    .btn-flat:hover {
+      background: #f1f5f9;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-flat svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .btn-print-flat {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 6px;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #ffffff;
+      transition: all 0.2s ease;
+    }
+
+    .btn-print-flat:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .btn-print-flat svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 20px auto;
+      padding: 0 24px 40px 24px;
+    }
+
+    .categories-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .dept-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(15, 76, 129, 0.1);
+    }
+
+    .dept-header {
+      background: #e2e8f0;
+      padding: 12px 20px;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    .dept-header:hover {
+      background: #cbd5e1;
+    }
+
+    .dept-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .category-header-total {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .collapse-arrow {
+      font-size: 10px;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+      user-select: none;
+    }
+
+    .dept-body.collapsed {
+      display: none;
+    }
+
+    .tasks-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .tasks-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .task-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      gap: 10px;
+      font-size: 12px;
+      background-color: #ffffff;
+      transition: all 0.2s ease;
+    }
+
+    .task-row:nth-child(odd) {
+      border-right: 1px solid var(--border);
+    }
+
+    .task-row.inactive { 
+      opacity: 0.4; 
+      background-color: #f8fafc; 
+    }
+    .task-row.inactive .task-name {
+      color: #64748b;
+    }
+    .task-row.active { 
+      opacity: 1; 
+      background-color: #e0f2fe; 
+    }
+
+    .task-checkbox {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .task-name {
+      flex: 1;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-assignee {
+      width: 120px;
+    }
+
+    .task-rate-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      width: 85px;
+    }
+
+    .task-rate-wrapper span {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .task-rate-wrapper input {
+      padding-left: 22px !important;
+      line-height: 1.2;
+    }
+
+    .task-hours {
+      width: 60px;
+    }
+
+    .task-total {
+      width: 85px;
+      text-align: right;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    input[type="number"], select, input[type="text"] {
+      padding: 5px 6px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 12px;
+      width: 100%;
+      box-sizing: border-box;
+      color: var(--text);
+    }
+
+    .rate-column-hidden .rate-col {
+      display: none !important;
+    }
+
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 42px;
+      height: 42px;
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      z-index: 1500;
+    }
+
+    .scroll-top-btn.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .scroll-top-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: #ffffff;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 18px 20px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      border: 1px solid var(--border);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--primary);
+    }
+
+    .modal-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .modal-form-group label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .label-with-icon {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-icon-inline {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      border-radius: 4px;
+    }
+
+    .btn-icon-inline:hover {
+      color: var(--primary);
+      background-color: #f1f5f9;
+    }
+
+    .btn-icon-inline svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .modal-row-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .settings-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .team-member-input {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .team-member-input label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .control-rate-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      width: 110px;
+    }
+
+    .control-rate-wrapper span {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .control-rate-wrapper input {
+      padding-left: 26px !important;
+      line-height: 1.2;
+    }
+
+    .btn-apply {
+      padding: 8px 16px;
+      font-size: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .print-only-summary {
+      display: none;
+    }
+
+    @media print {
+      @page {
+        size: letter portrait;
+        margin: 0.4in;
+      }
+
+      *, *:before, *:after {
+        box-shadow: none !important;
+        text-shadow: none !important;
+      }
+
+      .sticky-header-wrapper, .container, .no-print, .actions-inline, .btn-print-flat, .scroll-top-btn, .modal-overlay {
+        display: none !important;
+      }
+      
+      body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        padding: 0;
+        margin: 0;
+        font-size: 10px;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      .print-only-summary {
+        display: block !important;
+      }
+
+      .print-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 2.5px solid #0f4c81;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+      }
+
+      .print-brand-section {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .print-company-name {
+        font-size: 11px;
+        font-weight: 800;
+        color: #334155;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+      }
+
+      .print-project-name {
+        font-size: 20px;
+        font-weight: 900;
+        color: #0f4c81;
+        text-transform: uppercase;
+        margin-top: 2px;
+        line-height: 1.1;
+        letter-spacing: 0.5px;
+      }
+
+      .print-meta {
+        font-size: 10px;
+        color: #1e293b;
+        text-align: right;
+        line-height: 1.4;
+      }
+
+      .print-metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .print-metric-card {
+        border: 1px solid #0f4c81;
+        border-top: 3px solid #0f4c81;
+        padding: 6px 10px;
+        border-radius: 4px;
+        background: #f8fafc !important;
+        text-align: center;
+      }
+
+      .print-metric-label {
+        font-size: 9px;
+        font-weight: 800;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .print-metric-value {
+        font-size: 14px;
+        font-weight: 900;
+        color: #0f4c81;
+        margin-top: 2px;
+      }
+
+      .print-category-block {
+        margin-bottom: 14px;
+        page-break-inside: avoid;
+      }
+
+      .print-category-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #0f4c81;
+        padding-bottom: 3px;
+        margin-bottom: 6px;
+      }
+
+      .print-category-title {
+        font-size: 12px;
+        font-weight: 900;
+        color: #0f4c81;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .print-category-body-layout {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .print-table-wrapper {
+        flex: 1;
+      }
+
+      .print-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .print-table th, .print-table td {
+        border: 1px solid #94a3b8;
+        padding: 4px 8px;
+        text-align: left;
+        font-size: 9.5px;
+      }
+
+      .print-table th {
+        background-color: #e2e8f0 !important;
+        color: #0f4c81;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .print-table td {
+        color: #0f172a;
+      }
+
+      .print-table tr:nth-child(even) td {
+        background-color: #f8fafc !important;
+      }
+
+      .print-category-summary-box {
+        width: 190px;
+        border: 1px solid #0f4c81;
+        background: #f8fafc !important;
+        border-radius: 4px;
+        padding: 6px 10px;
+        flex-shrink: 0;
+      }
+
+      .print-summary-subtitle {
+        font-size: 9px;
+        font-weight: 900;
+        color: #0f4c81;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        border-bottom: 1px solid #cbd5e1;
+        padding-bottom: 3px;
+        letter-spacing: 0.5px;
+      }
+
+      .print-summary-mini-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .print-summary-mini-table td {
+        padding: 2px 0;
+        font-size: 9px;
+        color: #0f172a;
+      }
+
+      .print-summary-mini-table .summary-val {
+        text-align: right;
+        font-weight: 700;
+      }
+
+      .print-summary-mini-table .summary-total-row td {
+        border-top: 1.5px solid #0f4c81;
+        font-weight: 900;
+        color: #0f4c81;
+        padding-top: 4px;
+        margin-top: 2px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sticky-header-wrapper" id="topHeader">
+  <div class="brand-header">
+    
+    <div class="brand-text-logo">
+      <div class="brand-title">THE EVOLVE GROUP</div>
+      <div class="brand-tagline">DESIGNING STRUCTURES. DEFINING FUTURES.</div>
+    </div>
+
+    <div class="header-inputs">
+      <input type="text" id="projectName" placeholder="PROJECT NAME / ADDRESS" style="width: 220px;" oninput="this.value = this.value.toUpperCase(); updateDocumentTitle();">
+      <select id="projectType" style="width: 200px;">
+        <option value="">-- PROJECT TYPE --</option>
+        <option value="SINGLE FAMILY">SINGLE FAMILY</option>
+        <option value="DUPLEX - MIRROR">DUPLEX - MIRROR</option>
+        <option value="DUPLEX - DIFFERENT">DUPLEX - DIFFERENT</option>
+        <option value="3-1 DWELLING">3-1 DWELLING</option>
+        <option value="3 FLATS">3 FLATS</option>
+        <option value="SHUL">SHUL</option>
+        <option value="SHUL & RESIDENSE">SHUL & RESIDENSE</option>
+        <option value="SCHOOL">SCHOOL</option>
+        <option value="BUSINESS">BUSINESS</option>
+        <option value="COMMERCIAL">COMMERCIAL</option>
+        <option value="LEGALIZATION">LEGALIZATION</option>
+        <option value="ADDITION - RESIDENTIAL">ADDITION - RESIDENTIAL</option>
+        <option value="ADDITION - COMMERCIAL">ADDITION - COMMERCIAL</option>
+        <option value="RENOVATION - RESIDENTIAL">RENOVATION - RESIDENTIAL</option>
+        <option value="RENOVATION - COMMERCIAL">RENOVATION - COMMERCIAL</option>
+        <option value="RENOVATION & ADDITION - RESIDENTIAL">RENOVATION & ADDITION - RESIDENTIAL</option>
+        <option value="RENOVATION & ADDITION - COMMERCIAL">RENOVATION & ADDITION - COMMERCIAL</option>
+        <option value="AS BUILT">AS BUILT</option>
+        <option value="OTHER">OTHER</option>
+      </select>
+      <input type="date" id="estimateDate" style="width: 140px;" onchange="updateDocumentTitle();">
+    </div>
+
+    <div class="upper-right-controls">
+      <div class="total-print-group">
+        <div class="summary-badge">
+          <span>TOTAL:</span>
+          <span><span id="grandHours">0</span> hrs</span>
+          <span>|</span>
+          <span>$<span id="grandCost">0.00</span></span>
+        </div>
+        <button class="btn-print-flat no-print" onclick="triggerPrint()" title="Print / Export PDF">
+          <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-4 11H9v-5h6v5zm4-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+        </button>
+      </div>
+
+      <div class="actions-inline no-print">
+        <button class="btn-flat" onclick="openAddTaskModal()" title="Add Custom Task">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+
+        <button class="btn-flat" onclick="toggleRateVisibility()" title="Toggle Rates Visibility">
+          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        </button>
+
+        <button class="btn-flat" onclick="openSettingsModal()" title="Default Rates Settings">
+          <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1H6.32c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+        </button>
+
+        <button class="btn-flat" onclick="resetForm()" title="Reset Form">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="container rate-column-hidden" id="appContainer">
+  <div class="categories-list" id="departmentsContainer"></div>
+</div>
+
+<div class="print-only-summary" id="printSummary">
+  <div class="print-header">
+    <div class="print-brand-section">
+      <div class="print-company-name">THE EVOLVE GROUP</div>
+      <div class="print-project-name" id="printProjectName">PROJECT: UNNAMED</div>
+    </div>
+    <div class="print-meta">
+      <div><strong>Type:</strong> <span id="printProjectType">N/A</span></div>
+      <div><strong>Date:</strong> <span id="printEstimateDate">N/A</span></div>
+    </div>
+  </div>
+
+  <div class="print-metrics-grid">
+    <div class="print-metric-card">
+      <div class="print-metric-label">Active Tasks</div>
+      <div class="print-metric-value" id="printActiveCount">0</div>
+    </div>
+    <div class="print-metric-card">
+      <div class="print-metric-label">Total Hours</div>
+      <div class="print-metric-value" id="printTotalHours">0 hrs</div>
+    </div>
+    <div class="print-metric-card">
+      <div class="print-metric-label">Total Cost</div>
+      <div class="print-metric-value" id="printTotalCost">$0.00</div>
+    </div>
+  </div>
+
+  <div id="printCategoriesContainer"></div>
+</div>
+
+<button class="scroll-top-btn no-print" id="scrollTopBtn" onclick="scrollToTop()" title="Scroll to Top">
+  <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+</button>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span>DEFAULT HOURLY RATES</span>
+      <button class="btn-flat" onclick="closeSettingsModal()">✕</button>
+    </div>
+    <div class="settings-grid" id="settingsGrid"></div>
+    <div style="margin-top: 14px; text-align: right;">
+      <button class="btn-apply" onclick="applyNewDefaultRates()">SAVE RATES</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addTaskModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span>ADD CUSTOM TASK</span>
+      <button class="btn-flat" onclick="closeAddTaskModal()">✕</button>
+    </div>
+    
+    <div class="modal-form-group">
+      <label for="customTaskName">TASK NAME</label>
+      <input type="text" id="customTaskName" placeholder="E.G. SPECIAL SITE PERMIT" oninput="this.value = this.value.toUpperCase()">
+    </div>
+
+    <div class="modal-form-group">
+      <label for="customTaskCategory">CATEGORY</label>
+      <select id="customTaskCategory">
+        <option value="LAYOUT">LAYOUT</option>
+        <option value="STRUCTURE">STRUCTURE</option>
+        <option value="DOCUMENTATION">DOCUMENTATION</option>
+      </select>
+    </div>
+
+    <div class="modal-form-group">
+      <label for="customTaskAssignee">ASSIGNEE</label>
+      <select id="customTaskAssignee" onchange="onCustomTaskAssigneeChange(this.value)">
+        <option value="">-- SELECT ASSIGNEE --</option>
+      </select>
+    </div>
+
+    <div class="modal-row-two-col">
+      <div class="modal-form-group" id="customHoursGroup" style="grid-column: span 2;">
+        <div class="label-with-icon">
+          <label for="customTaskHours">ESTIMATED HOURS</label>
+          <button type="button" class="btn-icon-inline" onclick="toggleCustomTaskRateVisibility()" title="Toggle Hourly Rate">
+            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          </button>
+        </div>
+        <input type="number" id="customTaskHours" min="0" step="1" value="1">
+      </div>
+
+      <div class="modal-form-group" id="customRateGroup" style="display: none;">
+        <label for="customTaskRate">HOURLY RATE ($)</label>
+        <div class="control-rate-wrapper">
+          <span>$</span>
+          <input type="number" id="customTaskRate" min="0" step="1" value="0">
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 14px; text-align: right;">
+      <button class="btn-apply" onclick="submitCustomTask()">ADD TASK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var team = [
+    { id: "eluzer", name: "ELUZER LOWY", rate: 250 },
+    { id: "shlome", name: "SHLOME KELLNER", rate: 220 },
+    { id: "joel", name: "JOEL SCHNITZER", rate: 200 },
+    { id: "luigi", name: "LUIGI TAN", rate: 140 },
+    { id: "ben", name: "BEN JOHNSON GOHING", rate: 120 },
+    { id: "derick", name: "DERICK CABO GARCIA", rate: 110 },
+    { id: "architect", name: "ARCHITECT", rate: 500 }
+  ];
+
+  var categories = ["LAYOUT", "STRUCTURE", "DOCUMENTATION"];
+  var hideRates = true;
+  var showCustomTaskRate = false;
+
+  var collapsedState = {
+    "LAYOUT": true,
+    "STRUCTURE": true,
+    "DOCUMENTATION": true
+  };
+
+  var tasksState = [
+    { id: 1, dept: "LAYOUT", name: "AS BUILT DRAWING", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 2, dept: "LAYOUT", name: "REDRAW PLANS", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 3, dept: "LAYOUT", name: "AS BUILT", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 4, dept: "LAYOUT", name: "ATTIC LAYOUT", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 5, dept: "LAYOUT", name: "BASEMENT LAYOUT", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 6, dept: "LAYOUT", name: "CDRC PREPARE", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 7, dept: "LAYOUT", name: "CONCEPT ELEVATION", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 8, dept: "LAYOUT", name: "CONCEPT LAYOUT", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 9, dept: "LAYOUT", name: "CONCEPT MODIFY", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 10, dept: "LAYOUT", name: "CONCEPT MODIFY TO SITE", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 11, dept: "LAYOUT", name: "ELEVATIONS", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 12, dept: "LAYOUT", name: "FACADE DESIGN", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 13, dept: "LAYOUT", name: "MEETING", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 14, dept: "LAYOUT", name: "MEETING CLIENT/CONTRACTOR", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 15, dept: "LAYOUT", name: "MODIFY TO SITE PLAN", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 16, dept: "LAYOUT", name: "ROOF DESIGN", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 17, dept: "LAYOUT", name: "ROOM TAGS & SQFT", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 18, dept: "LAYOUT", name: "SITE ANALYSIS", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 19, dept: "LAYOUT", name: "SITE PLAN - OUTSOURCE", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 20, dept: "LAYOUT", name: "SITE SKETCH", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 21, dept: "LAYOUT", name: "TAG PLACEMENT", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 22, dept: "LAYOUT", name: "WINDOW PLACEMENT", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 23, dept: "LAYOUT", name: "ZONING ANALYSIS", active: false, assignee: "", rate: 0, hours: 0 },
+
+    { id: 24, dept: "STRUCTURE", name: "SECTIONS", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 25, dept: "STRUCTURE", name: "STRUCTURE CALCULATION", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 26, dept: "STRUCTURE", name: "STRUCTURE LOAD PATH", active: false, assignee: "", rate: 0, hours: 0 },
+
+    { id: 27, dept: "DOCUMENTATION", name: "SCHEDULES", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 28, dept: "DOCUMENTATION", name: "ADA LAYOUT", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 29, dept: "DOCUMENTATION", name: "ARCHITECT SEAL", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 30, dept: "DOCUMENTATION", name: "BRACE WALLS", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 31, dept: "DOCUMENTATION", name: "CODE DATA", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 32, dept: "DOCUMENTATION", name: "ELECTRICALS ETC.", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 33, dept: "DOCUMENTATION", name: "FINAL REVIEW", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 34, dept: "DOCUMENTATION", name: "FOUNDATION & ROOF PLAN", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 35, dept: "DOCUMENTATION", name: "GRADE DIAGRAM", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 36, dept: "DOCUMENTATION", name: "GRAPHICAL REVIEW", active: false, assignee: "", rate: 0, hours: 0 },
+    { id: 37, dept: "DOCUMENTATION", name: "WRAP UP", active: false, assignee: "", rate: 0, hours: 0 }
+  ];
+
+  var nextTaskId = 300;
+
+  function formatCurrency(val) {
+    return val.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formatInteger(val) {
+    return val.toLocaleString("en-US");
+  }
+
+  function formatDateToMMDDYYYY(dateString) {
+    if (!dateString) return "N/A";
+    var parts = dateString.split("-");
+    if (parts.length === 3) {
+      return parts[1] + "/" + parts[2] + "/" + parts[0];
+    }
+    var d = new Date(dateString);
+    if (isNaN(d.getTime())) return dateString;
+    var month = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    var year = d.getFullYear();
+    return month + "/" + day + "/" + year;
+  }
+
+  function updateDocumentTitle() {
+    var proj = document.getElementById('projectName').value.trim() || "UNNAMED PROJECT";
+    var rawDate = document.getElementById('estimateDate').value;
+    var formattedDate = formatDateToMMDDYYYY(rawDate);
+    
+    document.title = proj + " - " + formattedDate;
+  }
+
+  function triggerPrint() {
+    updateDocumentTitle();
+    window.print();
+  }
+
+  function openSettingsModal() {
+    renderControlPanel();
+    document.getElementById('settingsModal').classList.add('active');
+  }
+
+  function closeSettingsModal() {
+    document.getElementById('settingsModal').classList.remove('active');
+  }
+
+  function openAddTaskModal() {
+    document.getElementById('customTaskName').value = '';
+    document.getElementById('customTaskHours').value = '1';
+    document.getElementById('customTaskRate').value = '0';
+    showCustomTaskRate = false;
+    updateCustomTaskRateVisibility();
+
+    var assigneeSelect = document.getElementById('customTaskAssignee');
+    assigneeSelect.innerHTML = '<option value="">-- SELECT ASSIGNEE --</option>' +
+      team.map(function(t) { return '<option value="' + t.name + '">' + t.name + '</option>'; }).join('');
+
+    document.getElementById('addTaskModal').classList.add('active');
+  }
+
+  function closeAddTaskModal() {
+    document.getElementById('addTaskModal').classList.remove('active');
+  }
+
+  function toggleCustomTaskRateVisibility() {
+    showCustomTaskRate = !showCustomTaskRate;
+    updateCustomTaskRateVisibility();
+  }
+
+  function updateCustomTaskRateVisibility() {
+    var rateGrp = document.getElementById('customRateGroup');
+    var hrsGrp = document.getElementById('customHoursGroup');
+    if (showCustomTaskRate) {
+      rateGrp.style.display = 'flex';
+      hrsGrp.style.gridColumn = 'span 1';
+    } else {
+      rateGrp.style.display = 'none';
+      hrsGrp.style.gridColumn = 'span 2';
+    }
+  }
+
+  function onCustomTaskAssigneeChange(assignee) {
+    if (assignee) {
+      var member = team.find(function(m) { return m.name === assignee; });
+      if (member) {
+        document.getElementById('customTaskRate').value = member.rate;
+      }
+    }
+  }
+
+  function submitCustomTask() {
+    var category = document.getElementById('customTaskCategory').value;
+    var name = document.getElementById('customTaskName').value.trim().toUpperCase();
+    var assignee = document.getElementById('customTaskAssignee').value;
+    var rawHours = parseFloat(document.getElementById('customTaskHours').value) || 1;
+    var hours = Math.ceil(rawHours); // Roll up fractional hours to next whole integer
+    var rate = parseFloat(document.getElementById('customTaskRate').value) || 0;
+
+    if (name) {
+      tasksState.push({
+        id: nextTaskId++,
+        dept: category,
+        name: name,
+        active: true,
+        assignee: assignee,
+        rate: rate,
+        hours: hours
+      });
+      closeAddTaskModal();
+      renderApp();
+    }
+  }
+
+  function renderControlPanel() {
+    var panel = document.getElementById("settingsGrid");
+    if (!panel) return;
+    panel.innerHTML = "";
+
+    team.forEach(function(member) {
+      panel.innerHTML += '<div class="team-member-input">' +
+        '<label>' + member.name + ':</label>' +
+        '<div class="control-rate-wrapper">' +
+          '<span>$</span>' +
+          '<input type="number" id="setting_rate_' + member.id + '" value="' + member.rate + '" step="1">' +
+        '</div>' +
+      '</div>';
+    });
+  }
+
+  function applyNewDefaultRates() {
+    team.forEach(function(member) {
+      var input = document.getElementById("setting_rate_" + member.id);
+      if (input) {
+        member.rate = parseFloat(input.value) || 0;
+      }
+    });
+
+    tasksState.forEach(function(task) {
+      if (task.assignee) {
+        var member = team.find(function(m) { return m.name === task.assignee; });
+        if (member) {
+          task.rate = member.rate;
+        }
+      }
+    });
+
+    closeSettingsModal();
+    renderApp();
+  }
+
+  function toggleRateVisibility() {
+    hideRates = !hideRates;
+    var container = document.getElementById("appContainer");
+    if (hideRates) {
+      container.classList.add("rate-column-hidden");
+    } else {
+      container.classList.remove("rate-column-hidden");
+    }
+  }
+
+  function toggleDept(dept) {
+    collapsedState[dept] = !collapsedState[dept];
+    var body = document.getElementById("body_" + dept);
+    var icon = document.getElementById("arrow_" + dept);
+    if (body) {
+      if (collapsedState[dept]) {
+        body.classList.add("collapsed");
+        if (icon) icon.innerHTML = "&#9654;";
+      } else {
+        body.classList.remove("collapsed");
+        if (icon) icon.innerHTML = "&#9660;";
+      }
+    }
+  }
+
+  function renderTaskGridRow(task) {
+    var rowClass = task.active ? "active" : "inactive";
+    var totalCost = task.active ? (task.rate * task.hours) : 0;
+
+    var optionsTeam = team.map(function(t) {
+      return '<option value="' + t.name + '" ' + (task.assignee === t.name ? 'selected' : '') + '>' + t.name + '</option>';
+    }).join('');
+
+    return '<div class="task-row ' + rowClass + '" id="row_' + task.id + '">' +
+      '<input type="checkbox" class="task-checkbox" ' + (task.active ? 'checked' : '') + ' onchange="toggleTask(' + task.id + ', this.checked)">' +
+      '<div class="task-name" title="' + task.name + '">' + task.name + '</div>' +
+      '<div class="task-assignee">' +
+        '<select ' + (!task.active ? 'disabled' : '') + ' onchange="assignMember(' + task.id + ', this.value)">' +
+          '<option value="">-- ASSIGNEE --</option>' + optionsTeam +
+        '</select>' +
+      '</div>' +
+      '<div class="task-rate-wrapper rate-col">' +
+        '<span>$</span>' +
+        '<input type="number" id="rate_' + task.id + '" value="' + (task.active ? task.rate : 0) + '" placeholder="0" step="1" ' + (!task.active ? 'disabled' : '') + ' oninput="updateTaskRate(' + task.id + ', this.value)">' +
+      '</div>' +
+      '<div class="task-hours">' +
+        '<input type="number" id="hours_' + task.id + '" min="0" step="1" value="' + (task.active ? task.hours : 0) + '" placeholder="0" ' + (!task.active ? 'disabled' : '') + ' onchange="updateHours(' + task.id + ', this.value)">' +
+      '</div>' +
+      '<div class="task-total" id="cost_' + task.id + '">$' + formatCurrency(totalCost) + '</div>' +
+    '</div>';
+  }
+
+  function renderApp() {
+    var container = document.getElementById("departmentsContainer");
+    if (!container) return;
+    container.innerHTML = "";
+
+    categories.forEach(function(dept) {
+      var deptTasks = tasksState.filter(function(t) { return t.dept === dept; });
+      
+      deptTasks.sort(function(a, b) {
+        return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+      });
+
+      var isCollapsed = !!collapsedState[dept];
+
+      var bodyContent = '<div class="tasks-grid">' +
+        deptTasks.map(renderTaskGridRow).join('') +
+      '</div>';
+
+      var deptHtml = '<div class="dept-card">' +
+        '<div class="dept-header" onclick="toggleDept(\'' + dept + '\')">' +
+          '<div class="dept-title">' +
+            '<span class="collapse-arrow" id="arrow_' + dept + '">' + (isCollapsed ? '&#9654;' : '&#9660;') + '</span>' +
+            '<span>' + dept + '</span>' +
+          '</div>' +
+          '<span id="summary_' + dept + '" class="category-header-total">0 hrs | $0.00</span>' +
+        '</div>' +
+        '<div class="dept-body ' + (isCollapsed ? 'collapsed' : '') + '" id="body_' + dept + '">' +
+          bodyContent +
+        '</div>' +
+      '</div>';
+
+      container.innerHTML += deptHtml;
+    });
+
+    calculateTotals();
+  }
+
+  function toggleTask(id, isChecked) {
+    var task = tasksState.find(function(t) { return t.id === id; });
+    if (task) {
+      task.active = isChecked;
+      if (!isChecked) {
+        task.hours = 0;
+        task.rate = 0;
+        task.assignee = "";
+      } else {
+        if (task.hours === 0) task.hours = 1;
+      }
+      renderApp();
+    }
+  }
+
+  function assignMember(id, memberName) {
+    var task = tasksState.find(function(t) { return t.id === id; });
+    if (task) {
+      task.assignee = memberName;
+      var member = team.find(function(m) { return m.name === memberName; });
+      if (member) {
+        task.rate = member.rate;
+      } else {
+        task.rate = 0;
+      }
+      renderApp();
+    }
+  }
+
+  function updateTaskRate(id, rateValue) {
+    var task = tasksState.find(function(t) { return t.id === id; });
+    if (task) {
+      task.rate = parseFloat(rateValue) || 0;
+      updateRowCost(task);
+      calculateTotals();
+    }
+  }
+
+  function updateHours(id, hoursValue) {
+    var task = tasksState.find(function(t) { return t.id === id; });
+    if (task) {
+      var rawVal = parseFloat(hoursValue) || 0;
+      task.hours = Math.ceil(rawVal); // Roll up fractional hours to next whole integer
+      
+      var inputEl = document.getElementById("hours_" + id);
+      if (inputEl && inputEl.value !== "") {
+        inputEl.value = task.hours;
+      }
+
+      updateRowCost(task);
+      calculateTotals();
+    }
+  }
+
+  function updateRowCost(task) {
+    var costCell = document.getElementById("cost_" + task.id);
+    if (costCell) {
+      var totalCost = task.active ? (task.rate * task.hours) : 0;
+      costCell.innerText = "$" + formatCurrency(totalCost);
+    }
+  }
+
+  function calculateTotals() {
+    var grandHours = 0;
+    var grandCost = 0;
+
+    categories.forEach(function(dept) {
+      var deptTasks = tasksState.filter(function(t) { return t.dept === dept && t.active; });
+      var deptHours = 0;
+      var deptCost = 0;
+
+      deptTasks.forEach(function(t) {
+        deptHours += t.hours;
+        deptCost += (t.rate * t.hours);
+      });
+
+      var summarySpan = document.getElementById("summary_" + dept);
+      if (summarySpan) {
+        summarySpan.innerText = formatInteger(deptHours) + " hrs | $" + formatCurrency(deptCost);
+      }
+
+      grandHours += deptHours;
+      grandCost += deptCost;
+    });
+
+    var gHoursEl = document.getElementById("grandHours");
+    var gCostEl = document.getElementById("grandCost");
+    if (gHoursEl) gHoursEl.innerText = formatInteger(grandHours);
+    if (gCostEl) gCostEl.innerText = formatCurrency(grandCost);
+
+    renderPrintSummaryData(grandHours, grandCost);
+  }
+
+  function renderPrintSummaryData(totalHours, totalCost) {
+    var projName = document.getElementById('projectName').value.trim() || "UNNAMED PROJECT";
+    document.getElementById('printProjectName').innerText = projName;
+    document.getElementById('printProjectType').innerText = document.getElementById('projectType').value || "N/A";
+    
+    var rawDate = document.getElementById('estimateDate').value;
+    document.getElementById('printEstimateDate').innerText = formatDateToMMDDYYYY(rawDate);
+
+    var activeTasks = tasksState.filter(function(t) { return t.active; });
+    
+    document.getElementById('printActiveCount').innerText = formatInteger(activeTasks.length);
+    document.getElementById('printTotalHours').innerText = formatInteger(totalHours) + " hrs";
+    document.getElementById('printTotalCost').innerText = "$" + formatCurrency(totalCost);
+
+    var printCatContainer = document.getElementById('printCategoriesContainer');
+    printCatContainer.innerHTML = '';
+
+    categories.forEach(function(dept) {
+      var deptActiveTasks = activeTasks.filter(function(t) { return t.dept === dept; });
+      
+      var catBlock = document.createElement('div');
+      catBlock.className = 'print-category-block';
+
+      var catHeader = document.createElement('div');
+      catHeader.className = 'print-category-header';
+      catHeader.innerHTML = '<div class="print-category-title">' + dept + '</div>';
+      catBlock.appendChild(catHeader);
+
+      if (deptActiveTasks.length === 0) {
+        var noTaskMsg = document.createElement('p');
+        noTaskMsg.style.fontSize = '8.5px';
+        noTaskMsg.style.color = '#888';
+        noTaskMsg.style.margin = '2px 0';
+        noTaskMsg.innerText = 'No active tasks in this category.';
+        catBlock.appendChild(noTaskMsg);
+      } else {
+        var bodyLayout = document.createElement('div');
+        bodyLayout.className = 'print-category-body-layout';
+
+        var tableWrapper = document.createElement('div');
+        tableWrapper.className = 'print-table-wrapper';
+
+        var table = document.createElement('table');
+        table.className = 'print-table';
+        
+        table.innerHTML = '<thead><tr>' +
+          '<th>Task Name</th>' +
+          '<th>Assignee</th>' +
+          '<th>Hours</th>' +
+          '<th>Cost</th>' +
+        '</tr></thead>';
+
+        var tbody = document.createElement('tbody');
+        var assigneeSummary = {};
+        var deptTotalHours = 0;
+        var deptTotalCost = 0;
+
+        deptActiveTasks.forEach(function(task) {
+          var cost = task.rate * task.hours;
+          deptTotalHours += task.hours;
+          deptTotalCost += cost;
+
+          var assigneeName = task.assignee || 'UNASSIGNED';
+          if (!assigneeSummary[assigneeName]) {
+            assigneeSummary[assigneeName] = { hours: 0, cost: 0 };
+          }
+          assigneeSummary[assigneeName].hours += task.hours;
+          assigneeSummary[assigneeName].cost += cost;
+
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td>' + task.name + '</td>' +
+            '<td>' + assigneeName + '</td>' +
+            '<td>' + formatInteger(task.hours) + ' hrs</td>' +
+            '<td>$' + formatCurrency(cost) + '</td>';
+          tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+        tableWrapper.appendChild(table);
+        bodyLayout.appendChild(tableWrapper);
+
+        var summaryBox = document.createElement('div');
+        summaryBox.className = 'print-category-summary-box';
+        
+        var summaryTitle = document.createElement('div');
+        summaryTitle.className = 'print-summary-subtitle';
+        summaryTitle.innerText = 'SUMMARY BY ASSIGNEE';
+        summaryBox.appendChild(summaryTitle);
+
+        var miniTable = document.createElement('table');
+        miniTable.className = 'print-summary-mini-table';
+        var miniTbody = document.createElement('tbody');
+
+        Object.keys(assigneeSummary).forEach(function(person) {
+          var pData = assigneeSummary[person];
+          var mRow = document.createElement('tr');
+          mRow.innerHTML = '<td>' + person + '</td>' +
+            '<td class="summary-val">' + formatInteger(pData.hours) + 'h | $' + formatInteger(Math.round(pData.cost)) + '</td>';
+          miniTbody.appendChild(mRow);
+        });
+
+        var miniTotalRow = document.createElement('tr');
+        miniTotalRow.className = 'summary-total-row';
+        miniTotalRow.innerHTML = '<td>TOTAL</td>' +
+          '<td class="summary-val">' + formatInteger(deptTotalHours) + 'h | $' + formatInteger(Math.round(deptTotalCost)) + '</td>';
+        miniTbody.appendChild(miniTotalRow);
+
+        miniTable.appendChild(miniTbody);
+        summaryBox.appendChild(miniTable);
+        bodyLayout.appendChild(summaryBox);
+
+        catBlock.appendChild(bodyLayout);
+      }
+
+      printCatContainer.appendChild(catBlock);
+    });
+
+    updateDocumentTitle();
+  }
+
+  function resetForm() {
+    if (confirm("RESET ALL FORM FIELDS?")) {
+      tasksState.forEach(function(t) {
+        t.active = false;
+        t.assignee = "";
+        t.rate = 0;
+        t.hours = 0;
+      });
+      renderApp();
+    }
+  }
+
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  window.addEventListener('scroll', function() {
+    var scrollBtn = document.getElementById('scrollTopBtn');
+    if (window.scrollY > 200) {
+      scrollBtn.classList.add('visible');
+    } else {
+      scrollBtn.classList.remove('visible');
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("estimateDate").valueAsDate = new Date();
+    renderApp();
+    updateDocumentTitle();
+  });
+</script>
+</body>
+</html>
